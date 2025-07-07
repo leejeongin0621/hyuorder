@@ -1,10 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+
 const DEFAULT_LOCATION = { lat: 37.5666103, lng: 126.9783882 };
 
 const REST_STOPS = [
-  { name: '가평휴게소 서울방향', lat: 37.853684, lng: 127.513886 },
-  { name: '가평휴게소 춘천방향', lat: 37.854000, lng: 127.514000 },
+  { name: '서울 만남의 광장', lat: 37.452539, lng: 127.010235 },
+  { name: '화성휴게소(서울방향)', lat: 37.180195, lng: 126.818905 },
+  { name: '행담도휴게소', lat: 36.966844, lng: 126.232021 },
+  { name: '가평휴게소', lat: 37.853684, lng: 127.513886 },
+  { name: '시흥하늘휴게소', lat: 37.391313, lng: 126.787139 },
+  { name: '안성휴게소(부산방면)', lat: 37.004233, lng: 127.200726 },
+  { name: '하남드림휴게소', lat: 37.552052, lng: 127.220029 },
 ];
 
 const loadNaverMapScript = () => {
@@ -74,7 +80,39 @@ export default function MyMap() {
               position: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
               map: mapRef.current,
             });
+          } else {
+            markerRef.current.setPosition(
+              new naver.maps.LatLng(myLocation.lat, myLocation.lng)
+            );
           }
+
+          REST_STOPS.forEach((stop) => {
+            const distance = getDistance(
+              myLocation.lat,
+              myLocation.lng,
+              stop.lat,
+              stop.lng
+            );
+
+            const marker = new naver.maps.Marker({
+              map: mapRef.current,
+              position: new naver.maps.LatLng(stop.lat, stop.lng),
+            });
+
+            const infoWindow = new naver.maps.InfoWindow({
+              content: `<div style="padding:5px;"><strong>${stop.name}</strong><br/>거리: ${distance.toFixed(2)} km</div>`,
+            });
+
+            naver.maps.Event.addListener(marker, 'mouseover', () =>
+              infoWindow.open(mapRef.current, marker)
+            );
+            naver.maps.Event.addListener(marker, 'mouseout', () =>
+              infoWindow.close()
+            );
+            naver.maps.Event.addListener(marker, 'click', () =>
+              infoWindow.open(mapRef.current, marker)
+            );
+          });
         }
       }, 100);
     });
@@ -82,7 +120,6 @@ export default function MyMap() {
 
   return (
     <div style={{ width: '100%', paddingBottom: '80px' }}>
-      {/* 지도 + 카드 wrapper */}
       <div
         style={{
           width: '95%',
@@ -96,7 +133,7 @@ export default function MyMap() {
       >
         <div
           ref={mapContainerRef}
-          style={{ width: '100%', height: '500px' }}
+          style={{ width: '100%', height: '450px' }}
         />
 
         <div style={{ padding: '16px' }}>
@@ -146,7 +183,6 @@ export default function MyMap() {
         </div>
       </div>
 
-      {/* 하단 네비게이션 바 */}
       <div
         style={{
           position: 'fixed',
@@ -154,6 +190,7 @@ export default function MyMap() {
           left: 0,
           right: 0,
           height: '56px',
+          width: '100%',
           backgroundColor: '#0f766e',
           display: 'flex',
           justifyContent: 'space-around',
