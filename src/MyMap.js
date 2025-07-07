@@ -41,7 +41,7 @@ const getDistance = (lat1, lng1, lat2, lng2) => {
 };
 
 export default function MyMap() {
-  const [myLocation, setMyLocation] = useState(DEFAULT_LOCATION);
+  const [myLocation, setMyLocation] = useState(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const mapContainerRef = useRef(null);
@@ -50,85 +50,88 @@ export default function MyMap() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setMyLocation({
+          const coords = {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
-          });
+          };
+          setMyLocation(coords);
         },
         () => setMyLocation(DEFAULT_LOCATION)
       );
+    } else {
+      setMyLocation(DEFAULT_LOCATION);
     }
   }, []);
 
   useEffect(() => {
+    if (!myLocation) return;
+
     loadNaverMapScript().then(() => {
-      const interval = setInterval(() => {
-        if (window.naver?.maps && mapContainerRef.current) {
-          clearInterval(interval);
-          const naver = window.naver;
+      const naver = window.naver;
+      if (!naver || !mapContainerRef.current) return;
 
-          if (!mapRef.current) {
-            mapRef.current = new naver.maps.Map(mapContainerRef.current, {
-              center: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
-              zoom: 12,
-            });
-          }
+      if (!mapRef.current) {
+        mapRef.current = new naver.maps.Map(mapContainerRef.current, {
+          center: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
+          zoom: 12,
+        });
+      } else {
+        mapRef.current.setCenter(new naver.maps.LatLng(myLocation.lat, myLocation.lng));
+      }
 
-          if (!markerRef.current) {
-            markerRef.current = new naver.maps.Marker({
-              position: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
-              map: mapRef.current,
-              icon: {
-                content:
-                  '<div style="background:#2186f3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">나</div>',
-                size: new naver.maps.Size(24, 24),
-                anchor: new naver.maps.Point(12, 12),
-              },
-            });
-          } else {
-            markerRef.current.setPosition(
-              new naver.maps.LatLng(myLocation.lat, myLocation.lng)
-            );
-          }
+      if (!markerRef.current) {
+        markerRef.current = new naver.maps.Marker({
+          position: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
+          map: mapRef.current,
+          icon: {
+            content:
+              '<div style="background:#2186f3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">나</div>',
+            size: new naver.maps.Size(24, 24),
+            anchor: new naver.maps.Point(12, 12),
+          },
+        });
+      } else {
+        markerRef.current.setPosition(new naver.maps.LatLng(myLocation.lat, myLocation.lng));
+      }
 
-          REST_STOPS.forEach((stop) => {
-            const distance = getDistance(
-              myLocation.lat,
-              myLocation.lng,
-              stop.lat,
-              stop.lng
-            );
+      REST_STOPS.forEach((stop) => {
+        const distance = getDistance(
+          myLocation.lat,
+          myLocation.lng,
+          stop.lat,
+          stop.lng
+        );
 
-            const marker = new naver.maps.Marker({
-              map: mapRef.current,
-              position: new naver.maps.LatLng(stop.lat, stop.lng),
-            });
+        const marker = new naver.maps.Marker({
+          map: mapRef.current,
+          position: new naver.maps.LatLng(stop.lat, stop.lng),
+        });
 
-            const infoWindow = new naver.maps.InfoWindow({
-              content: `<div style="padding:5px;"><strong>${stop.name}</strong><br/>거리: ${distance.toFixed(2)} km</div>`,
-            });
+        const infoWindow = new naver.maps.InfoWindow({
+          content: `<div style="padding:5px;"><strong>${stop.name}</strong><br/>거리: ${distance.toFixed(2)} km</div>`,
+        });
 
-            naver.maps.Event.addListener(marker, 'mouseover', () =>
-              infoWindow.open(mapRef.current, marker)
-            );
-            naver.maps.Event.addListener(marker, 'mouseout', () =>
-              infoWindow.close()
-            );
-            naver.maps.Event.addListener(marker, 'click', () =>
-              infoWindow.open(mapRef.current, marker)
-            );
-          });
-        }
-      }, 100);
+        naver.maps.Event.addListener(marker, 'mouseover', () =>
+          infoWindow.open(mapRef.current, marker)
+        );
+        naver.maps.Event.addListener(marker, 'mouseout', () =>
+          infoWindow.close()
+        );
+        naver.maps.Event.addListener(marker, 'click', () =>
+          infoWindow.open(mapRef.current, marker)
+        );
+      });
     });
   }, [myLocation]);
 
-  const sortedStops = REST_STOPS.map((stop) => ({
-    ...stop,
-    distance: getDistance(myLocation.lat, myLocation.lng, stop.lat, stop.lng),
-  }))
-    .sort((a, b) => a.distance - b.distance)
-    .slice(0, 2);
+  const sortedStops = myLocation
+    ? REST_STOPS.map((stop) => ({
+        ...stop,
+        distance: getDistance(myLocation.lat, myLocation.lng, stop.lat, stop.lng),
+      }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 2)
+    : [];
 
   return (
     <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -144,7 +147,7 @@ export default function MyMap() {
       >
         <div
           ref={mapContainerRef}
-          style={{ width: '100%', height: '370px' }}
+          style={{ width: '100%', height: '300px' }}
         />
 
         <div style={{ padding: '16px' }}>
