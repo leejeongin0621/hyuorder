@@ -152,61 +152,60 @@ export default function MyMap() {
     });
   }, [myLocation]);
 
-  return (
-  <div style={{ position: 'relative', width: '100%' }}>
-    {/* 지도 영역: 높이 고정 */}
-    <div
-      ref={mapContainerRef}
-      style={{
-        width: '100%',
-        height: '400px', // ★ 원하는 높이만큼 고정
-      }}
-    />
-
-    {/* 흰색 박스 - 지도 아래 표시 */}
+ return (
+  <div style={{ width: '100%', padding: '20px 0', display: 'flex', justifyContent: 'center' }}>
     <div
       style={{
-        position: 'relative', // 이제 absolute 아님
-        margin: '20px auto',
         width: '95%',
         maxWidth: '400px',
-        background: 'white',
         borderRadius: '12px',
-        boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
-        padding: '16px',
-        zIndex: 1,
+        overflow: 'hidden',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        backgroundColor: 'white',
       }}
     >
-      <h3 style={{ margin: '0 0 8px' }}>가까운 휴게소</h3>
-      {nearestStop ? (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <div>
-            <strong>{nearestStop.name}</strong>
-            <br />
-            거리: {nearestStop.distance.toFixed(2)} km
-          </div>
-          <button
+      {/* 지도 */}
+      <div
+        ref={mapContainerRef}
+        style={{
+          width: '100%',
+          height: '300px',
+        }}
+      />
+
+      {/* 카드 UI */}
+      <div style={{ padding: '16px' }}>
+        <h3 style={{ margin: '0 0 8px' }}>가까운 휴게소</h3>
+        {nearestStop ? (
+          <div
             style={{
-              padding: '8px 12px',
-              backgroundColor: '#047857',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
-            주문하기
-          </button>
-        </div>
-      ) : (
-        <p>근처 휴게소를 찾는 중...</p>
-      )}
+            <div>
+              <strong>{nearestStop.name}</strong>
+              <br />
+              거리: {nearestStop.distance.toFixed(2)} km
+            </div>
+            <button
+              style={{
+                padding: '8px 12px',
+                backgroundColor: '#047857',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+              }}
+            >
+              주문하기
+            </button>
+          </div>
+        ) : (
+          <p>근처 휴게소를 찾는 중...</p>
+        )}
+      </div>
     </div>
   </div>
 );
