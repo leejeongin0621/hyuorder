@@ -131,12 +131,11 @@ export default function MyMap() {
     .slice(0, 2);
 
   return (
-    <div style={{ width: '100%', paddingBottom: '80px' }}>
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
       <div
         style={{
           width: '95%',
           maxWidth: '400px',
-          margin: '20px auto 0',
           borderRadius: '12px',
           overflow: 'hidden',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
@@ -185,31 +184,25 @@ export default function MyMap() {
             </div>
           ))}
         </div>
-      </div>
 
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '95%',
-          maxWidth: '400px',
-          height: '56px',
-          backgroundColor: '#0f766e',
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          color: '#fff',
-          fontSize: '12px',
-          zIndex: 999,
-          borderRadius: '12px 12px 0 0',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>🏠<div>홈</div></div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>🔍<div>검색</div></div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>🧾<div>주문내역</div></div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>👤<div>마이</div></div>
+        <div
+          style={{
+            width: '100%',
+            height: '56px',
+            backgroundColor: '#0f766e',
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            color: '#fff',
+            fontSize: '12px',
+            borderTop: '1px solid #ccc',
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>🏠<div>홈</div></div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>🔍<div>검색</div></div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>🧾<div>주문내역</div></div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>👤<div>마이</div></div>
+        </div>
       </div>
     </div>
   );
