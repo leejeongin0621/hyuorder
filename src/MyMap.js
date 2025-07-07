@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-
 const DEFAULT_LOCATION = { lat: 37.5666103, lng: 126.9783882 };
 
 const REST_STOPS = [
@@ -79,6 +78,12 @@ export default function MyMap() {
             markerRef.current = new naver.maps.Marker({
               position: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
               map: mapRef.current,
+              icon: {
+                content:
+                  '<div style="background:#2186f3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">나</div>',
+                size: new naver.maps.Size(24, 24),
+                anchor: new naver.maps.Point(12, 12),
+              },
             });
           } else {
             markerRef.current.setPosition(
@@ -118,6 +123,13 @@ export default function MyMap() {
     });
   }, [myLocation]);
 
+  const sortedStops = REST_STOPS.map((stop) => ({
+    ...stop,
+    distance: getDistance(myLocation.lat, myLocation.lng, stop.lat, stop.lng),
+  }))
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, 2);
+
   return (
     <div style={{ width: '100%', paddingBottom: '80px' }}>
       <div
@@ -138,48 +150,40 @@ export default function MyMap() {
 
         <div style={{ padding: '16px' }}>
           <h3 style={{ margin: '0 0 8px' }}>가까운 휴게소</h3>
-          {REST_STOPS.map((stop, index) => {
-            const distance = getDistance(
-              myLocation.lat,
-              myLocation.lng,
-              stop.lat,
-              stop.lng
-            ).toFixed(2);
-            return (
-              <div
-                key={index}
+          {sortedStops.map((stop, index) => (
+            <div
+              key={index}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#f8f8f8',
+                borderRadius: '8px',
+                padding: '12px',
+                marginBottom: '10px',
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 'bold' }}>{stop.name}</div>
+                <div style={{ fontSize: '12px' }}>🚻 ⛽ 🍽️</div>
+                <div style={{ fontSize: '12px', marginTop: '4px' }}>
+                  도착 예정 시간 10:20 / 거리: {stop.distance.toFixed(2)} km
+                </div>
+              </div>
+              <button
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  backgroundColor: '#f8f8f8',
-                  borderRadius: '8px',
-                  padding: '12px',
-                  marginBottom: '10px',
+                  padding: '8px 12px',
+                  backgroundColor: '#047857',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
                 }}
               >
-                <div>
-                  <div style={{ fontWeight: 'bold' }}>{stop.name}</div>
-                  <div style={{ fontSize: '12px' }}>🚻 ⛽ 🍽️</div>
-                  <div style={{ fontSize: '12px', marginTop: '4px' }}>
-                    도착 예정 시간 10:20 / 거리: {distance} km
-                  </div>
-                </div>
-                <button
-                  style={{
-                    padding: '8px 12px',
-                    backgroundColor: '#047857',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  주문하기
-                </button>
-              </div>
-            );
-          })}
+                주문하기
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -187,10 +191,11 @@ export default function MyMap() {
         style={{
           position: 'fixed',
           bottom: 0,
-          left: 0,
-          right: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '95%',
+          maxWidth: '400px',
           height: '56px',
-          width: '100%',
           backgroundColor: '#0f766e',
           display: 'flex',
           justifyContent: 'space-around',
@@ -198,6 +203,7 @@ export default function MyMap() {
           color: '#fff',
           fontSize: '12px',
           zIndex: 999,
+          borderRadius: '12px 12px 0 0',
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>🏠<div>홈</div></div>
