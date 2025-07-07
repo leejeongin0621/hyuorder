@@ -162,19 +162,21 @@ export default function MyMap() {
     />
 
     {/* 하단 패널 */}
-    <div
-      style={{
-        position: 'absolute',
-        bottom: 10,
-        left: 10,
-        right: 10,
-        background: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-        padding: '16px',
-        zIndex: 10,
-      }}
-    >
+  <div
+  style={{
+    position: 'absolute',
+    bottom: 16,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '95%',
+    maxWidth: '400px',
+    background: 'white',
+    borderRadius: '12px',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+    padding: '16px',
+    zIndex: 10,
+  }}
+>
       <h3 style={{ margin: '0 0 8px' }}>가까운 휴게소</h3>
       {nearestStop ? (
         <div
