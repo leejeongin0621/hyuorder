@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const DEFAULT_LOCATION = { lat: 37.5666103, lng: 126.9783882 }; // 서울시청
 
-// 휴게소 데이터
 const restStops = [
   { name: "H&DE 서울 만남의 광장", lat: 37.4820, lng: 127.0445 },
   { name: "대보유통 화성휴게소(서울방향)", lat: 37.1435, lng: 126.8813 },
@@ -13,9 +12,9 @@ const restStops = [
   { name: "KR 하남드림휴게소", lat: 37.5440, lng: 127.2230 },
 ];
 
-// 거리 계산 함수 (단위: km)
+// 거리 계산 함수
 function getDistance(lat1, lng1, lat2, lng2) {
-  const R = 6371; // 지구 반지름(km)
+  const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLng = (lng2 - lng1) * (Math.PI / 180);
   const a =
@@ -35,7 +34,6 @@ export default function MyMap() {
   const markerRef = useRef(null);
   const mapContainerRef = useRef(null);
 
-  // 위치 추적
   useEffect(() => {
     let watcher = null;
 
@@ -58,7 +56,6 @@ export default function MyMap() {
     };
   }, []);
 
-  // 지도 + 마커 + 가장 가까운 휴게소 계산
   useEffect(() => {
     const interval = setInterval(() => {
       if (window.naver && window.naver.maps && mapContainerRef.current) {
@@ -79,7 +76,8 @@ export default function MyMap() {
             position: new naverMap.LatLng(myLocation.lat, myLocation.lng),
             map: mapRef.current,
             icon: {
-              content: '<div style="background:#2186f3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">나</div>',
+              content:
+                '<div style="background:#2186f3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">나</div>',
               size: new naverMap.Size(24, 24),
               anchor: new naverMap.Point(12, 12),
             },
@@ -88,12 +86,30 @@ export default function MyMap() {
           markerRef.current.setPosition(new naverMap.LatLng(myLocation.lat, myLocation.lng));
         }
 
-        // 휴게소 마커
+        // 휴게소 마커 및 InfoWindow
         restStops.forEach((stop) => {
-          new naverMap.Marker({
+          const marker = new naverMap.Marker({
             position: new naverMap.LatLng(stop.lat, stop.lng),
             map: mapRef.current,
-            title: stop.name,
+          });
+
+          const infoWindow = new naverMap.InfoWindow({
+            content: `<div style="padding:5px 10px;font-size:13px;font-weight:bold;">${stop.name}</div>`,
+          });
+
+          // 마우스 올릴 때
+          naverMap.Event.addListener(marker, "mouseover", () => {
+            infoWindow.open(mapRef.current, marker);
+          });
+
+          // 마우스 뗄 때
+          naverMap.Event.addListener(marker, "mouseout", () => {
+            infoWindow.close();
+          });
+
+          // 클릭 시 InfoWindow 고정
+          naverMap.Event.addListener(marker, "click", () => {
+            infoWindow.open(mapRef.current, marker);
           });
         });
 
@@ -105,7 +121,6 @@ export default function MyMap() {
         });
 
         setClosestStop(closest);
-        console.log("가장 가까운 휴게소:", closest.name);
 
         clearInterval(interval);
       }
@@ -117,10 +132,8 @@ export default function MyMap() {
   return (
     <div>
       <div ref={mapContainerRef} style={{ width: '100%', height: '500px', borderRadius: '8px' }} />
-      <p>내 위치: {myLocation.lat.toFixed(6)}, {myLocation.lng.toFixed(6)}</p>
-      {closestStop && (
-        <p>📍 가장 가까운 휴게소: <strong>{closestStop.name}</strong></p>
-      )}
+      <p>📍 내 위치: {myLocation.lat.toFixed(6)}, {myLocation.lng.toFixed(6)}</p>
+      {closestStop && <p>🚗 가장 가까운 휴게소: <strong>{closestStop.name}</strong></p>}
     </div>
   );
 }
