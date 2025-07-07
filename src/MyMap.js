@@ -154,21 +154,59 @@ export default function MyMap() {
   }, [myLocation]);
 
   return (
-    <div>
-      <div
-        ref={mapContainerRef}
-        style={{ width: '100%', height: '400px', marginBottom: '10px' }}
-      />
-      <p>
-        내 위치: 위도 {myLocation.lat.toFixed(6)}, 경도{' '}
-        {myLocation.lng.toFixed(6)}
-      </p>
-      {nearestStop && (
-        <p>
-          가장 가까운 휴게소: {nearestStop.name} (
-          {nearestStop.distance.toFixed(2)}km)
-        </p>
+  <div style={{ position: 'relative' }}>
+    {/* 지도 */}
+    <div
+      ref={mapContainerRef}
+      style={{ width: '100%', height: '400px' }}
+    />
+
+    {/* 하단 패널 */}
+    <div
+      style={{
+        position: 'absolute',
+        bottom: 10,
+        left: 10,
+        right: 10,
+        background: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        padding: '16px',
+        zIndex: 10,
+      }}
+    >
+      <h3 style={{ margin: '0 0 8px' }}>가까운 휴게소</h3>
+      {nearestStop ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '8px',
+          }}
+        >
+          <div>
+            <strong>{nearestStop.name}</strong>
+            <br />
+            거리: {nearestStop.distance.toFixed(2)} km
+          </div>
+          <button
+            style={{
+              padding: '8px 12px',
+              backgroundColor: '#047857',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+            }}
+          >
+            주문하기
+          </button>
+        </div>
+      ) : (
+        <p>근처 휴게소를 찾는 중...</p>
       )}
     </div>
-  );
+  </div>
+);
 }
