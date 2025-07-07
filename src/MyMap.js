@@ -147,7 +147,7 @@ export default function MyMap() {
       >
         <div
           ref={mapContainerRef}
-          style={{ width: '100%', height: '300px' }}
+          style={{ width: '100%', height: '370px' }}
         />
 
         <div style={{ padding: '16px' }}>
