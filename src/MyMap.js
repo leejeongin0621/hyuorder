@@ -32,15 +32,13 @@ const loadNaverMapScript = () => {
 
 const getDistance = (lat1, lng1, lat2, lng2) => {
   const toRad = (val) => (val * Math.PI) / 180;
-  const R = 6371; // 지구 반지름 (km)
+  const R = 6371;
 
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
   const a =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) ** 2;
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };
@@ -79,7 +77,6 @@ export default function MyMap() {
       if (window.naver && mapContainerRef.current) {
         const naver = window.naver;
 
-        // 지도 초기화
         if (!mapRef.current) {
           mapRef.current = new naver.maps.Map(mapContainerRef.current, {
             center: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
@@ -91,7 +88,6 @@ export default function MyMap() {
           );
         }
 
-        // 내 위치 마커
         if (!markerRef.current) {
           markerRef.current = new naver.maps.Marker({
             position: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
@@ -109,7 +105,6 @@ export default function MyMap() {
           );
         }
 
-        // 휴게소 마커 생성 및 가장 가까운 휴게소 계산
         let minDist = Infinity;
         let closest = null;
 
@@ -154,61 +149,60 @@ export default function MyMap() {
   }, [myLocation]);
 
   return (
-  <div style={{ position: 'relative' }}>
-    {/* 지도 */}
-    <div
-      ref={mapContainerRef}
-      style={{ width: '100%', height: '400px' }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {/* 전체 화면에 지도를 꽉 채움 */}
+      <div
+        ref={mapContainerRef}
+        style={{ width: '100%', height: '100%' }}
+      />
 
-    {/* 하단 패널 */}
-  <div
-  style={{
-    position: 'absolute',
-    bottom: 16,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '95%',
-    maxWidth: '400px',
-    background: 'white',
-    borderRadius: '12px',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
-    padding: '16px',
-    zIndex: 10,
-  }}
->
-      <h3 style={{ margin: '0 0 8px' }}>가까운 휴게소</h3>
-      {nearestStop ? (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '8px',
-          }}
-        >
-          <div>
-            <strong>{nearestStop.name}</strong>
-            <br />
-            거리: {nearestStop.distance.toFixed(2)} km
-          </div>
-          <button
+      {/* 하단 박스 */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 16,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '95%',
+          maxWidth: '400px',
+          background: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+          padding: '16px',
+          zIndex: 10,
+        }}
+      >
+        <h3 style={{ margin: '0 0 8px' }}>가까운 휴게소</h3>
+        {nearestStop ? (
+          <div
             style={{
-              padding: '8px 12px',
-              backgroundColor: '#047857',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
-            주문하기
-          </button>
-        </div>
-      ) : (
-        <p>근처 휴게소를 찾는 중...</p>
-      )}
+            <div>
+              <strong>{nearestStop.name}</strong>
+              <br />
+              거리: {nearestStop.distance.toFixed(2)} km
+            </div>
+            <button
+              style={{
+                padding: '8px 12px',
+                backgroundColor: '#047857',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+              }}
+            >
+              주문하기
+            </button>
+          </div>
+        ) : (
+          <p>근처 휴게소를 찾는 중...</p>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 }
