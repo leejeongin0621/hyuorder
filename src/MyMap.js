@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const DEFAULT_LOCATION = { lat: 37.5666103, lng: 126.9783882 }; // 서울시청
+const DEFAULT_LOCATION = { lat: 37.5666103, lng: 126.9783882 };
 
 const REST_STOPS = [
   { name: '서울 만남의 광장', lat: 37.452539, lng: 127.010235 },
@@ -33,7 +33,6 @@ const loadNaverMapScript = () => {
 const getDistance = (lat1, lng1, lat2, lng2) => {
   const toRad = (val) => (val * Math.PI) / 180;
   const R = 6371;
-
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
   const a =
@@ -74,89 +73,92 @@ export default function MyMap() {
 
   useEffect(() => {
     loadNaverMapScript().then(() => {
-      if (window.naver && mapContainerRef.current) {
-        const naver = window.naver;
+      const interval = setInterval(() => {
+        if (window.naver?.maps && mapContainerRef.current) {
+          clearInterval(interval);
 
-        if (!mapRef.current) {
-          mapRef.current = new naver.maps.Map(mapContainerRef.current, {
-            center: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
-            zoom: 10,
-          });
-        } else {
-          mapRef.current.setCenter(
-            new naver.maps.LatLng(myLocation.lat, myLocation.lng)
-          );
-        }
+          const naver = window.naver;
 
-        if (!markerRef.current) {
-          markerRef.current = new naver.maps.Marker({
-            position: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
-            map: mapRef.current,
-            icon: {
-              content:
-                '<div style="background:#2186f3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">나</div>',
-              size: new naver.maps.Size(24, 24),
-              anchor: new naver.maps.Point(12, 12),
-            },
-          });
-        } else {
-          markerRef.current.setPosition(
-            new naver.maps.LatLng(myLocation.lat, myLocation.lng)
-          );
-        }
-
-        let minDist = Infinity;
-        let closest = null;
-
-        REST_STOPS.forEach((stop) => {
-          const distance = getDistance(
-            myLocation.lat,
-            myLocation.lng,
-            stop.lat,
-            stop.lng
-          );
-
-          const marker = new naver.maps.Marker({
-            map: mapRef.current,
-            position: new naver.maps.LatLng(stop.lat, stop.lng),
-          });
-
-          const infoWindow = new naver.maps.InfoWindow({
-            content: `<div style="padding:5px;"><strong>${stop.name}</strong><br/>거리: ${distance.toFixed(
-              2
-            )}km</div>`,
-          });
-
-          naver.maps.Event.addListener(marker, 'mouseover', () =>
-            infoWindow.open(mapRef.current, marker)
-          );
-          naver.maps.Event.addListener(marker, 'mouseout', () =>
-            infoWindow.close()
-          );
-          naver.maps.Event.addListener(marker, 'click', () =>
-            infoWindow.open(mapRef.current, marker)
-          );
-
-          if (distance < minDist) {
-            minDist = distance;
-            closest = { ...stop, distance };
+          if (!mapRef.current) {
+            mapRef.current = new naver.maps.Map(mapContainerRef.current, {
+              center: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
+              zoom: 10,
+            });
+          } else {
+            mapRef.current.setCenter(
+              new naver.maps.LatLng(myLocation.lat, myLocation.lng)
+            );
           }
-        });
 
-        setNearestStop(closest);
-      }
+          if (!markerRef.current) {
+            markerRef.current = new naver.maps.Marker({
+              position: new naver.maps.LatLng(myLocation.lat, myLocation.lng),
+              map: mapRef.current,
+              icon: {
+                content:
+                  '<div style="background:#2186f3;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">나</div>',
+                size: new naver.maps.Size(24, 24),
+                anchor: new naver.maps.Point(12, 12),
+              },
+            });
+          } else {
+            markerRef.current.setPosition(
+              new naver.maps.LatLng(myLocation.lat, myLocation.lng)
+            );
+          }
+
+          let minDist = Infinity;
+          let closest = null;
+
+          REST_STOPS.forEach((stop) => {
+            const distance = getDistance(
+              myLocation.lat,
+              myLocation.lng,
+              stop.lat,
+              stop.lng
+            );
+
+            const marker = new naver.maps.Marker({
+              map: mapRef.current,
+              position: new naver.maps.LatLng(stop.lat, stop.lng),
+            });
+
+            const infoWindow = new naver.maps.InfoWindow({
+              content: `<div style="padding:5px;"><strong>${stop.name}</strong><br/>거리: ${distance.toFixed(
+                2
+              )}km</div>`,
+            });
+
+            naver.maps.Event.addListener(marker, 'mouseover', () =>
+              infoWindow.open(mapRef.current, marker)
+            );
+            naver.maps.Event.addListener(marker, 'mouseout', () =>
+              infoWindow.close()
+            );
+            naver.maps.Event.addListener(marker, 'click', () =>
+              infoWindow.open(mapRef.current, marker)
+            );
+
+            if (distance < minDist) {
+              minDist = distance;
+              closest = { ...stop, distance };
+            }
+          });
+
+          setNearestStop(closest);
+        }
+      }, 100);
+      setTimeout(() => clearInterval(interval), 10000);
     });
   }, [myLocation]);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* 전체 화면에 지도를 꽉 채움 */}
+    <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
       <div
         ref={mapContainerRef}
         style={{ width: '100%', height: '100%' }}
       />
 
-      {/* 하단 박스 */}
       <div
         style={{
           position: 'absolute',
