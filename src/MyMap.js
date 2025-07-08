@@ -12,7 +12,7 @@ const REST_STOPS = [
   { name: '하남드림휴게소', lat: 37.552052, lng: 127.220029 },
 ];
 
-const AVERAGE_SPEED_KMH = 60;
+const AVERAGE_SPEED_KMH = 40;
 
 const getEstimatedTime = (distanceKm) => {
   const timeHours = distanceKm / AVERAGE_SPEED_KMH;
