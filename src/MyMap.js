@@ -12,6 +12,13 @@ const REST_STOPS = [
   { name: '하남드림휴게소', lat: 37.552052, lng: 127.220029 },
 ];
 
+const AVERAGE_SPEED_KMH = 60;
+
+const getEstimatedTime = (distanceKm) => {
+  const timeHours = distanceKm / AVERAGE_SPEED_KMH;
+  return Math.round(timeHours * 60); // 소요 시간(분)
+};
+
 const loadNaverMapScript = () => {
   return new Promise((resolve, reject) => {
     if (document.getElementById('naver-map-script')) {
@@ -125,10 +132,14 @@ export default function MyMap() {
   }, [myLocation]);
 
   const sortedStops = myLocation
-    ? REST_STOPS.map((stop) => ({
-        ...stop,
-        distance: getDistance(myLocation.lat, myLocation.lng, stop.lat, stop.lng),
-      }))
+    ? REST_STOPS.map((stop) => {
+        const distance = getDistance(myLocation.lat, myLocation.lng, stop.lat, stop.lng);
+        return {
+          ...stop,
+          distance,
+          estimatedTime: getEstimatedTime(distance),
+        };
+      })
         .sort((a, b) => a.distance - b.distance)
         .slice(0, 2)
     : [];
@@ -169,7 +180,7 @@ export default function MyMap() {
                 <div style={{ fontWeight: 'bold' }}>{stop.name}</div>
                 <div style={{ fontSize: '12px' }}>🚻 ⛽ 🍽️</div>
                 <div style={{ fontSize: '12px', marginTop: '4px' }}>
-                  도착 예정 시간 10:20 / 거리: {stop.distance.toFixed(2)} km
+                  도착 예상 시간: 약 {stop.estimatedTime}분 / 거리: {stop.distance.toFixed(2)} km
                 </div>
               </div>
               <button
